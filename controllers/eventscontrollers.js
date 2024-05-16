@@ -24,10 +24,17 @@ exports.getEvents = catchAsync(async (req, res) => {
   const { page = 1, limit = 9 } = req.query;
   const skip = (page - 1) * limit;
 
+  const totalEvents = await Event.countDocuments();
+
   const events = await Event.find({}, "-createdAt -updatedAt", {
     skip,
     limit,
   });
 
-  res.status(201).json(events);
+  res.status(201).json({
+    totalEvents,
+    currentPage: Number(page),
+    totalPages: Math.ceil(totalEvents / limit),
+    events,
+  });
 });
